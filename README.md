@@ -4,8 +4,5 @@
 因fofa与zoomeye无法精确应用此功能所以编写
 
 ## 工具使用
-首先克隆仓库
-```git clone https://github.com/cat-bucket/ip/ ```
 
-然后就可以使用工具了
-```cd ip;python ip.py```
+直接复制ip.py中的代码到Python编译器即可
