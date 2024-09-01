@@ -5,7 +5,17 @@
 
 ## 工具使用
 
-直接复制ip.py中的代码到Python编译器即可
+使用前需先安装requests库
+
+在终端可以```pkg install python```如果没有安装
+
+```nano ip.py```复制代码并且粘贴代码
+
+```pip install requests```安装库
+
+```python ip.py```
+
+或者直接复制ip.py中的代码到Python编译器即可
 
 还有一些说明在这里 
  
