@@ -15,20 +15,6 @@
 
 扫描可能花费一些时间
 
-如上述扫描出来就是：
-
-http://bilibali.com
-http://biliblli.com
-http://bilibuli.com
-http://bilicili.com
-http://bilifuli.com
-http://biliibli.com
-http://bilihili.com
-http://bilimali.com
-http://bililili.com
-http://bilinili.com
-http://bilivili.com
-
-你会发现没有bilibili.com这是因为部分网站会屏蔽请求已防止爬虫
+如果你照着事例做，你会发现没有bilibili.com这是因为部分网站会屏蔽请求
 
 所以可以在使用时选择将不同状态的网站列为可访问，以扫描所有网站
