@@ -7,13 +7,13 @@
 
 使用前需先安装requests库
 
-在终端可以```pkg install python```如果没有安装
+在终端可以```pkg install python``` *如果没有安装*
 
 ```nano ip.py```复制代码并且粘贴代码
 
-```pip install requests```安装库
+```pip install requests```安装库 *如果没有安装*
 
-```python ip.py```
+```python ip.py```运行
 
 或者直接复制ip.py中的代码到Python编译器即可
 
