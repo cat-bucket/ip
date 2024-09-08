@@ -2,18 +2,23 @@ import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import string
 import itertools
+import sys
+
+def print_progress_bar(iteration, total, length=40):
+    percent = (iteration / total) * 100
+    filled_length = int(length * iteration // total)
+    bar = '█' * filled_length + '-' * (length - filled_length)
+    sys.stdout.write(f'\r|{bar}| {percent:.2f}% 完成')
+    sys.stdout.flush()
 
 def fetch_url(template, letter_combination, include_non_200):
     url = template.replace('*', ''.join(letter_combination))
     try:
         response = requests.get(url, timeout=10)  # 设置超时为10秒
         if response.status_code == 200 or include_non_200:
-            print(f"可访问: {url} (状态码: {response.status_code})")  # 调试输出
             return url, response.status_code  # 返回成功的URL和状态码
-        else:
-            print(f"不可访问 (状态码 {response.status_code}): {url}")  # 调试输出
-    except requests.exceptions.RequestException as e:
-        print(f"请求异常: {e} -> {url}")  # 打印异常进行调试
+    except requests.exceptions.RequestException:
+        pass
     return None  # 如果失败，返回None
 
 def main():
@@ -43,7 +48,8 @@ def main():
     include_non_200 = input("是否将状态码不等于200的网页列为可访问网页？(y/n): ").strip().lower() == 'y'
 
     # 生成所有可能的字符组合
-    combinations = itertools.product(letters, repeat=num_of_chars)
+    combinations = list(itertools.product(letters, repeat=num_of_chars))
+    total_combinations = len(combinations)
 
     accessible_domains = []  # 存储成功访问的域名
     status_codes = []  # 存储状态码信息
@@ -51,23 +57,22 @@ def main():
     with ThreadPoolExecutor(max_workers=100) as executor:  # 设置线程数
         futures = {executor.submit(fetch_url, template, combination, include_non_200): combination for combination in combinations}
 
-        for future in as_completed(futures):
+        for i, future in enumerate(as_completed(futures)):
             result = future.result()
             if result:
                 accessible_domains.append(result[0])  # 只存储URL
                 status_codes.append(result[1])  # 存储状态码
+            print_progress_bar(i + 1, total_combinations)  # 更新进度条
+
+    print()  # 打印换行以清理进度条输出
 
     # 打印所有成功访问的域名
     if accessible_domains:
-        print("\n以下域名可访问:")
-        for domain in accessible_domains:
-            print(domain)
+        print("\n以下域名可访问:\n" + "="*40)
+        for domain, code in zip(accessible_domains, status_codes):
+            print(f"域名: {domain} - 状态码: {code}")
+        print("="*40)
         
-        # 如果用户选择了显示状态码不等于200的网页，打印状态码
-        if include_non_200:
-            print("\n状态码信息:")
-            for domain, code in zip(accessible_domains, status_codes):
-                print(f"{domain} - 状态码: {code}")
     else:
         print("没有可访问的域名。")
 
