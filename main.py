@@ -2,16 +2,13 @@ import subprocess
 import os
 
 # ANSI 转义序列
-CYAN = "\033[96m"
 GREEN = "\033[92m"
-YELLOW = "\033[93m"
 RED = "\033[91m"
-RESET = "\033[0m"
 
 os.system('cls' if os.name == 'nt' else 'clear')
 
 def print_banner():
-    banner = f"""{CYAN}
+    banner = f"""{RED}
   ____      ____    _    _   ____   _  __  _____  _____  _____  
  / ___|    | __ )  | |  | | | __ ) | |/ / | ____|| ____||_   _| 
 | |        |  _ \  | |  | | |  _ \ | ' /  |  _|  |  _|    | |   
@@ -33,7 +30,7 @@ if __name__ == '__main__':
         if user_input == '1':
             call_script('ip.py')  # 调用 ip.py 文件
         elif user_input == '2':
-            print(f"{YELLOW}退出程序。{RESET}")
+            print(f"{GREEN}退出程序。{RESET}")
             break  # 退出循环
         else:
             print(f"{RED}无效选项，请重试。{RESET}")
