@@ -1,6 +1,6 @@
 import subprocess
 import os
-import subdomain_brute_module  # 导入子域名爆破模块
+
 
 # ANSI 转义序列
 GREEN = "\033[92m"
