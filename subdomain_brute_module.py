@@ -32,15 +32,16 @@ def subdomain_brute(target_domain, subdomain_list_file, threads=50):
 
         # 使用多线程进行子域名爆破
         with ThreadPoolExecutor(max_workers=threads) as executor:
-            futures = {executor.submit(check_subdomain, subdomain, target_domain): subdomain for subdomain in subdomains}
+            futures = [executor.submit(check_subdomain, subdomain, target_domain) for subdomain in subdomains]
             completed_tasks = 0
 
-            # 显示进度条
+            # 初始化进度条
             print_progress_bar(completed_tasks, total_subdomains)
 
+            # 通过 as_completed 获取完成的任务
             for future in as_completed(futures):
-                result = future.result()
-                completed_tasks += 1
+                result = future.result()  # 获取任务结果
+                completed_tasks += 1  # 更新已完成任务数
                 # 更新进度条
                 print_progress_bar(completed_tasks, total_subdomains)
 
@@ -48,8 +49,9 @@ def subdomain_brute(target_domain, subdomain_list_file, threads=50):
                     found_subdomains.append(result)
 
         # 完成后打印发现的子域名
+        print()  # 打印新行，清理进度条的行
         if not found_subdomains:
-            print("\n未发现任何子域名")
+            print("未发现任何子域名")
         else:
             print("\n子域名爆破完成！发现的子域名列表：")
             for domain in found_subdomains:
