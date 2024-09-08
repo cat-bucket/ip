@@ -16,13 +16,14 @@ def check_subdomain(subdomain, target_domain):
     try:
         response = requests.get(url, timeout=3)
         if response.status_code == 200:
-            return url  # 如果子域名存在，返回它的 URL
-    except requests.ConnectionError:
-        pass  # 子域名不存在，忽略错误
+            return url  # 返回子域名的 URL
+    except (requests.ConnectionError, requests.Timeout):
+        pass  # 如果子域名无法访问，忽略错误
     return None
 
 def subdomain_brute(target_domain, subdomain_list_file, threads=50):
     try:
+        # 读取子域名字典
         with open(subdomain_list_file, 'r') as file:
             subdomains = file.read().splitlines()
 
@@ -32,7 +33,7 @@ def subdomain_brute(target_domain, subdomain_list_file, threads=50):
 
         # 使用多线程进行子域名爆破
         with ThreadPoolExecutor(max_workers=threads) as executor:
-            futures = [executor.submit(check_subdomain, subdomain, target_domain) for subdomain in subdomains]
+            futures = {executor.submit(check_subdomain, subdomain, target_domain): subdomain for subdomain in subdomains}
             completed_tasks = 0
 
             # 初始化进度条
@@ -40,13 +41,16 @@ def subdomain_brute(target_domain, subdomain_list_file, threads=50):
 
             # 通过 as_completed 获取完成的任务
             for future in as_completed(futures):
-                result = future.result()  # 获取任务结果
+                try:
+                    result = future.result()  # 获取任务结果
+                    if result:
+                        found_subdomains.append(result)
+                except Exception as e:
+                    # 捕获并忽略每个 Future 内部的异常，防止程序崩溃
+                    pass
                 completed_tasks += 1  # 更新已完成任务数
                 # 更新进度条
                 print_progress_bar(completed_tasks, total_subdomains)
-
-                if result:
-                    found_subdomains.append(result)
 
         # 完成后打印发现的子域名
         print()  # 打印新行，清理进度条的行
