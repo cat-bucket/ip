@@ -91,10 +91,10 @@ def select_mode_and_brute(target_domain):
     mode = input("请输入选择的模式 (1/2/3): ")
     
     if mode == '1':
-        subdomain_brute(target_domain, 'min.txt', threads=50)  # 快速模式
+        subdomain_brute(target_domain, 'min.txt', threads=64)  # 快速模式
     elif mode == '2':
-        subdomain_brute(target_domain, 'azk.txt', threads=50)  # 普通模式
+        subdomain_brute(target_domain, 'azk.txt', threads=64)  # 普通模式
     elif mode == '3':
-        subdomain_brute(target_domain, 'max.txt', threads=50)  # 较大模式
+        subdomain_brute(target_domain, 'max.txt', threads=64)  # 较大模式
     else:
         print("无效选项，请重试。")
