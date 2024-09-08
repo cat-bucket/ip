@@ -1,6 +1,8 @@
 import subprocess
 import os
 
+os.system('cls' if os.name == 'nt' else 'clear')
+
 def print_banner():
     banner = '''
   ____      ____    _    _   ____   _  __  _____  _____  _____  
