@@ -8,7 +8,7 @@ RED = "\033[91m"
 os.system('cls' if os.name == 'nt' else 'clear')
 
 def print_banner():
-    banner = f"""{RED}
+    banner = f"""{GREEN}
   ____      ____    _    _    ____  _  __  _____  _____  
  / ___|    | __ )  | |  | |  / ___|| |/ / | ____||_   _| 
 | |        |  _ \  | |  | | | |    | ' /  |  _|    | |   
