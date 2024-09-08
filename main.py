@@ -30,8 +30,8 @@ if __name__ == '__main__':
         if user_input == '1':
             call_script('ip.py')  # 调用 ip.py 文件
         elif user_input == '2':
-            print(f"{GREEN}退出程序。{RESET}")
+            print(f"{GREEN}退出程序")
             break  # 退出循环
         else:
-            print(f"{RED}无效选项，请重试。{RESET}")
+            print(f"{RED}无效选项，请重试")
         os.system('cls' if os.name == 'nt' else 'clear')  # 清空屏幕
