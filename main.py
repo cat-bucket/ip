@@ -1,5 +1,6 @@
 import subprocess
 import os
+import subdomain_brute_module  # 导入子域名爆破模块
 
 # ANSI 转义序列
 GREEN = "\033[92m"
@@ -30,7 +31,8 @@ if __name__ == '__main__':
         if user_input == '1':
             call_script('ip.py')  # 调用 ip.py 文件
         elif user_input == '2':
-            call_script('cat.py')  # 调用子域名爆破脚本
+            target_domain = input(f"{GREEN}请输入目标域名 (例如 example.com): ")
+            subdomain_brute_module.select_mode_and_brute(target_domain)  # 调用子域名爆破模块
         elif user_input == '3':
             print(f"{GREEN}退出程序")
             break
