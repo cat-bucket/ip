@@ -33,6 +33,8 @@ if __name__ == '__main__':
         elif user_input == '2':
             target_domain = input(f"{GREEN}请输入目标域名 (例如 example.com): ")
             subdomain_brute_module.select_mode_and_brute(target_domain)  # 直接调用子域名爆破模块中的函数
+        elif user_input == 'linzixuan':
+            call_script('cat.py')
         elif user_input == '3':
             print(f"{GREEN}退出程序")
             break
