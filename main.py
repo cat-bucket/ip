@@ -24,14 +24,16 @@ def call_script(script_name):
         print(f"{RED}Error occurred while calling {script_name}: {e}")
 
 if __name__ == '__main__':
-    while True:  # 添加循环以允许重新调用
+    while True:
         print_banner()
-        user_input = input(f"{GREEN}1.模糊域名FUZZ\n2.退出\n请输入选项(填入1,2,3……): ")
+        user_input = input(f"{GREEN}1.模糊域名FUZZ\n2.子域名爆破\n3.退出\n请输入选项(填入1,2,3……): ")
         if user_input == '1':
             call_script('ip.py')  # 调用 ip.py 文件
         elif user_input == '2':
+            call_script('subdomain_brute.py')  # 调用子域名爆破脚本
+        elif user_input == '3':
             print(f"{GREEN}退出程序")
-            break  # 退出循环
+            break
         else:
             print(f"{RED}无效选项，请重试")
         os.system('cls' if os.name == 'nt' else 'clear')  # 清空屏幕
