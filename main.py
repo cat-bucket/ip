@@ -26,7 +26,7 @@ def call_script(script_name):
 if __name__ == '__main__':
     while True:  # 添加循环以允许重新调用
         print_banner()
-        user_input = input(f"{GREEN}1.模糊域名FUZZ\n2.退出\n请输入选项: ")
+        user_input = input(f"{GREEN}1.模糊域名FUZZ\n2.退出\n请输入选项(填入1,2,3……): ")
         if user_input == '1':
             call_script('ip.py')  # 调用 ip.py 文件
         elif user_input == '2':
