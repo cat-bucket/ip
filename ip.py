@@ -1,3 +1,17 @@
+
+def print_banner():
+    banner = '''
+  ____      _   ____  _    _ _  __ _  __ ______ _ 
+ / ___| ___| |_| __ )| |  | | |/ /| |/ /| ____ (_)
+/ |    / _ \ __|  _ \| |  | | ' / | ' / |  _| | | 
+| |___|  __/ |_| |_) | |__| | . \ | . \ | |___| | 
+ \____|\___|\__|____/ \____/|_|\_\|_|\_\|_____|_|
+    '''
+    print(banner)
+
+if __name__ == '__main__':
+    print_banner()
+
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import string
