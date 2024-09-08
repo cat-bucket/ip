@@ -71,8 +71,16 @@ def main():
     else:
         print("没有可访问的域名。")
 
+
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("操作已中断。")
+    while True:  # 添加循环以允许继续使用
+        try:
+            main()
+        except KeyboardInterrupt:
+            print("操作已中断。")
+        
+        # 询问用户是否继续使用
+        continue_choice = input("是否继续使用？(y/n): ").strip().lower()
+        if continue_choice != 'y':
+            print("退出程序。")
+            break  # 退出循环
