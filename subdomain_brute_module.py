@@ -61,6 +61,23 @@ def subdomain_brute(target_domain, subdomain_list_file, threads=50):
             for domain in found_subdomains:
                 print(domain)
 
+        # 添加继续执行和结束的选择
+        while True:
+            print("\n请选择接下来的操作:")
+            print("1. 返回主菜单")
+            print("2. 结束程序")
+            user_choice = input("请输入选项 (1/2): ")
+            
+            if user_choice == '1':
+                # 返回主菜单
+                return
+            elif user_choice == '2':
+                # 结束程序
+                print("程序结束。")
+                sys.exit(0)  # 正常退出程序
+            else:
+                print("无效选项，请重试。")
+
     except FileNotFoundError:
         print(f"无法找到文件 {subdomain_list_file}")
 
