@@ -14,19 +14,19 @@ def print_banner():
 | |        |  _ \  | |  | | | |    | ' /  |  _|    | |   
 | |___     | |_) | | |__| | | |__  | . \  | |___   | |   
  \____|    |____/   \____/   \___| |_|\_\ |_____|  |_|   
-{RESET}"""
+"""
     print(banner)
 
 def call_script(script_name):
     try:
         subprocess.run(['python', script_name], check=True)
     except subprocess.CalledProcessError as e:
-        print(f"{RED}Error occurred while calling {script_name}: {e}{RESET}")
+        print(f"{RED}Error occurred while calling {script_name}: {e}")
 
 if __name__ == '__main__':
     while True:  # 添加循环以允许重新调用
         print_banner()
-        user_input = input(f"{GREEN}1.模糊域名FUZZ\n2.退出\n请输入选项: {RESET}")
+        user_input = input(f"{GREEN}1.模糊域名FUZZ\n2.退出\n请输入选项: ")
         if user_input == '1':
             call_script('ip.py')  # 调用 ip.py 文件
         elif user_input == '2':
