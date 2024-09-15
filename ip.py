@@ -3,6 +3,7 @@ import asyncio
 import string
 import itertools
 import sys
+import time
 
 def print_progress_bar(iteration, total, length=40):
     percent = (iteration / total) * 100
@@ -13,18 +14,36 @@ def print_progress_bar(iteration, total, length=40):
 
 async def fetch_url(session, template, letter_combination, include_non_200, semaphore):
     url = template.replace('*', ''.join(letter_combination))
-    async with semaphore:  # 使用信号量控制并发数量
-        for _ in range(3):  # 尝试最多3次
+    async with semaphore:
+        for _ in range(3):  # 保持重试次数为3次
             try:
-                async with session.get(url, timeout=2) as response:  
+                async with session.get(url, timeout=5) as response:  # 将超时设置为5秒
                     if response.status == 200 or include_non_200:
                         return url, response.status  # 返回成功的URL和状态码
-            except Exception:  # 捕获所有请求异常并进行重试
-                await asyncio.sleep(0.05)  # 重试前等待0.05秒
-    return None  # 如果失败，返回None
+            except Exception:  # 捕获所有异常并继续重试
+                await asyncio.sleep(0.1)  # 每次重试前等待0.1秒
+    return None  # 如果失败，则返回None
 
-async def process_batch(session, batch, template, include_non_200, semaphore, total, processed):
+async def process_batch(session, batch, template, include_non_200, semaphore, total, processed, retry_failed):
     tasks = [fetch_url(session, template, combination, include_non_200, semaphore) for combination in batch]
+    results = await asyncio.gather(*tasks)
+    
+    accessible_domains = []
+    status_codes = []
+    
+    for combination, result in zip(batch, results):
+        if result:
+            accessible_domains.append(result[0])
+            status_codes.append(result[1])
+        else:
+            retry_failed.append(combination)  # 将失败的任务放入重试队列
+    
+    processed[0] += len(batch)  # 更新已处理的数量
+    print_progress_bar(processed[0], total)  # 更新进度条
+    return accessible_domains, status_codes
+
+async def retry_failed_batch(session, failed_batch, template, include_non_200, semaphore, total, processed):
+    tasks = [fetch_url(session, template, combination, include_non_200, semaphore) for combination in failed_batch]
     results = await asyncio.gather(*tasks)
     
     accessible_domains = []
@@ -35,7 +54,7 @@ async def process_batch(session, batch, template, include_non_200, semaphore, to
             accessible_domains.append(result[0])
             status_codes.append(result[1])
     
-    processed[0] += len(batch)  # 更新已处理的数量
+    processed[0] += len(failed_batch)  # 更新已处理的数量
     print_progress_bar(processed[0], total)  # 更新进度条
     return accessible_domains, status_codes
 
@@ -76,22 +95,30 @@ async def main():
     semaphore = asyncio.Semaphore(500)  # 控制并发数为500
 
     batch_size = 500  # 每批处理500个组合
-    processed = [0]  # 已处理的数量（用列表以便在协程中修改）
+    processed = [0]  # 已处理的数量
+    retry_failed = []  # 存储需要重试的组合
     
-    async with aiohttp.ClientSession() as session:  # 使用 aiohttp 的 session 管理请求
+    async with aiohttp.ClientSession() as session:
         batch = []
         for combination in combinations:
             batch.append(combination)
             if len(batch) >= batch_size:
-                # 批量处理
-                domains, codes = await process_batch(session, batch, template, include_non_200, semaphore, total_combinations, processed)
+                # 处理批次
+                domains, codes = await process_batch(session, batch, template, include_non_200, semaphore, total_combinations, processed, retry_failed)
                 accessible_domains.extend(domains)
                 status_codes.extend(codes)
-                batch = []  # 清空批次任务
+                batch = []  # 清空当前批次
 
         # 处理剩余未满批次的任务
         if batch:
-            domains, codes = await process_batch(session, batch, template, include_non_200, semaphore, total_combinations, processed)
+            domains, codes = await process_batch(session, batch, template, include_non_200, semaphore, total_combinations, processed, retry_failed)
+            accessible_domains.extend(domains)
+            status_codes.extend(codes)
+
+        # 处理所有失败的任务（重试）
+        if retry_failed:
+            print("\n正在重试失败的请求...")
+            domains, codes = await retry_failed_batch(session, retry_failed, template, include_non_200, semaphore, total_combinations, processed)
             accessible_domains.extend(domains)
             status_codes.extend(codes)
 
