@@ -15,7 +15,7 @@ def print_progress_bar(iteration, total, length=40):
 async def fetch_url(session, template, letter_combination, include_non_200, semaphore):
     url = template.replace('*', ''.join(letter_combination))
     async with semaphore:
-        for _ in range(3):  # 保持重试次数为3次
+        for _ in range(2):  
             try:
                 async with session.get(url, timeout=5) as response:  # 将超时设置为5秒
                     if response.status == 200 or include_non_200:
