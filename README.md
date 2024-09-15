@@ -6,6 +6,9 @@
 
 克隆库```git clone https://github.com/cat-bucket/ip``` 
 
+```pip install -r requirements.txt``` 
+环境安装
+
 ```cd ip;python main.py```使用
 
 
