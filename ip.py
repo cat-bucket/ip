@@ -1,27 +1,23 @@
-import requests
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import aiohttp
+import asyncio
 import string
 import itertools
 import sys
+import time
 
-def print_progress_bar(iteration, total, length=40):
-    percent = (iteration / total) * 100
-    filled_length = int(length * iteration // total)
-    bar = '█' * filled_length + '-' * (length - filled_length)
-    sys.stdout.write(f'\r|{bar}| {percent:.2f}% 完成')
-    sys.stdout.flush()
-
-def fetch_url(template, letter_combination, include_non_200):
+async def fetch_url(session, template, letter_combination, include_non_200, semaphore):
     url = template.replace('*', ''.join(letter_combination))
-    try:
-        response = requests.get(url, timeout=10)  # 设置超时为10秒
-        if response.status_code == 200 or include_non_200:
-            return url, response.status_code  # 返回成功的URL和状态码
-    except requests.exceptions.RequestException:
-        pass
+    async with semaphore:  # 使用信号量控制并发数量
+        for _ in range(2):  # 
+            try:
+                async with session.get(url, timeout=3) as response:  # 超时设置为5秒
+                    if response.status == 200 or include_non_200:
+                        return url, response.status  # 返回成功的URL和状态码
+            except Exception:  # 捕获所有请求异常并进行重试
+                await asyncio.sleep(0.02)  # 重试前等待1秒
     return None  # 如果失败，返回None
 
-def main():
+async def main():
     print("欢迎使用网页状态检查工具！")
     template = input("请输入包含'*'的域名模板 (如http://bili*ili.com): ").strip()
     
@@ -48,21 +44,30 @@ def main():
     include_non_200 = input("是否将状态码不等于200的网页列为可访问网页？(y/n): ").strip().lower() == 'y'
 
     # 生成所有可能的字符组合
-    combinations = list(itertools.product(letters, repeat=num_of_chars))
-    total_combinations = len(combinations)
+    combinations = itertools.product(letters, repeat=num_of_chars)
+    total_combinations = len(letters) ** num_of_chars
 
     accessible_domains = []  # 存储成功访问的域名
     status_codes = []  # 存储状态码信息
-    
-    with ThreadPoolExecutor(max_workers=100) as executor:  # 设置线程数
-        futures = {executor.submit(fetch_url, template, combination, include_non_200): combination for combination in combinations}
 
-        for i, future in enumerate(as_completed(futures)):
-            result = future.result()
-            if result:
-                accessible_domains.append(result[0])  # 只存储URL
-                status_codes.append(result[1])  # 存储状态码
-            print_progress_bar(i + 1, total_combinations)  # 更新进度条
+    # 设置并发量限制
+    semaphore = asyncio.Semaphore(1000)  # 控制并发数为1000
+
+    async with aiohttp.ClientSession() as session:  # 使用 aiohttp 的 session 管理请求
+        tasks = []
+        for i, combination in enumerate(combinations, 1):
+            task = fetch_url(session, template, combination, include_non_200, semaphore)
+            tasks.append(task)
+
+            # 批量处理请求, 每1000个任务处理一次
+            if i % 1000 == 0 or i == total_combinations:
+                results = await asyncio.gather(*tasks)  # 批量执行任务
+                for result in results:
+                    if result:
+                        accessible_domains.append(result[0])  # 只存储URL
+                        status_codes.append(result[1])  # 存储状态码
+                tasks = []  # 清空任务列表
+                print_progress_bar(i, total_combinations)  # 每批任务完成后更新进度条
 
     print()  # 打印换行以清理进度条输出
 
@@ -76,11 +81,10 @@ def main():
     else:
         print("没有可访问的域名。")
 
-
 if __name__ == "__main__":
     while True:  # 添加循环以允许继续使用
         try:
-            main()
+            asyncio.run(main())  # 使用 asyncio.run() 来执行异步函数
         except KeyboardInterrupt:
             print("操作已中断。")
         
