@@ -2,7 +2,7 @@
 本工具应用与部分看不清，或者只知道部分的网址进行爆破查询。
 因fofa与zoomeye无法精确应用此功能所以编写
 
-免费机场 干净IP TG不封 老牌稳定[这里](https://glados.space/landing/6FLMR-A44DY-TWEHO-11MET)
+
 
 ## 工具使用
 
